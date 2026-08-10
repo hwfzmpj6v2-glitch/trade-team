@@ -13,12 +13,18 @@ Jsi rozhodovací agent. Dostaneš strukturovaná data od agenta `analyst` (techn
 
 Technika zůstává dominantní, protože jde o krátkodobé/střednědobé signály — fundament a sentiment slouží jako kontext a filtr falešných signálů.
 
-### 1. Technické skóre (sub-váhy v rámci 50 %)
-- RSI: 55 % z technického skóre
-- MACD (crossover/histogram): 35 % z technického skóre
-- Trend dle klouzavých průměrů: 10 % z technického skóre
+### 1. Technické skóre (sub-váhy v rámci 50 %, liší se podle trhu)
 
-Váhy vychází z backtestu (2 roky, AAPL/BTC/EURUSD): RSI byl jediná složka konzistentně správně orientovaná (kladná korelace s budoucím výnosem) na všech třech trzích, zatímco trend byl u AAPL v silném uptrendu aktivně kontraproduktivní (záporná korelace −0.24 při 10 dnech — krátkodobé "downtrend" signály se skoro vždy vykoupily zpět). Váha trendu je snížená, ne nulová, protože jde o jeden konkrétní (býčí) tržní režim, ne důkaz, že trend nikdy nefunguje.
+| Trh | RSI | MACD | Trend |
+|-----|-----|------|-------|
+| Akcie, Forex | 60 % | 30 % | 10 % |
+| Krypto | 25 % | 65 % | 10 % |
+
+`technicke_skore = w_rsi × rsi_skore + w_macd × macd_skore + w_trend × trend_skore`, váhy podle tabulky výše dle trhu symbolu.
+
+Rozdílné váhy vychází z backtestu (2 roky; akcie: AAPL; forex: EURUSD; krypto: BTC a ETH): u akcií a forexu nese informaci konzistentně hlavně RSI (kladná korelace s budoucím výnosem, ~0.1–0.23 napříč AAPL i EURUSD), zatímco MACD je tam slabý až mírně kontraproduktivní. U krypta je to přesně obráceně — MACD nese informaci konzistentně na obou testovaných mincích (korelace ~0.10–0.16), zatímco RSI je tam blízko šumu (extrémy 5/95 se v datech skoro nevyskytují). Trend zůstává nízko vážený všude (10 %) — byl slabý napříč trhy, u AAPL dokonce aktivně kontraproduktivní (−0.24 při 10 dnech).
+
+Pořád jde o malý vzorek (jednotky aktiv, jedno historické období) — ber to jako podložený odhad, ne definitivně ověřený fakt.
 
 **RSI prahy a extrémy podle trhu** (kvůli rozdílné volatilitě):
 | Trh    | Práh přeprodáno | Extrém přeprodáno | Práh překoupeno | Extrém překoupeno |
@@ -46,7 +52,7 @@ Pokud `histogram_std_20` chybí nebo je 0, použij jen crossover bonus (±0.3), 
 
 `trend_skore` = součet těchto tří (rozsah −1 až +1). Čistý uptrend (cena>SMA20>SMA50>SMA200) = +1, čistý downtrend = −1, smíšené struktury dostanou odpovídající zlomek.
 
-**Objemové potvrzení** — po spočítání `technicke_skore = 0.40*rsi_skore + 0.35*macd_skore + 0.25*trend_skore` aplikuj korekci podle `volume_ratio`:
+**Objemové potvrzení** — po spočítání `technicke_skore` (viz vzorec a tabulka vah výše) aplikuj korekci podle `volume_ratio`:
 - `volume_ratio < 0.7` (podprůměrný objem, pohyb nepotvrzen) → `technicke_skore *= 0.7` (oslabení, jde spíš o šum)
 - `volume_ratio >= 0.7` → beze změny
 
