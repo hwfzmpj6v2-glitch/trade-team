@@ -32,18 +32,24 @@ Pro každý běh scanneru přidej blok:
 
 ### AAPL (akcie) — LONG (confidence: 0.72)
 - Cena: 231.50
+- Stop-loss: 222.80
+- Take-profit: 248.90
 - RSI(14): 28.4 (přeprodáno)
 - MACD: bullish crossover
 - Odůvodnění: RSI pod 30 + MACD histogram obrátil do kladných hodnot
 
 ### BTC/USDT (krypto) — SHORT (confidence: 0.65)
 - Cena: 61250
+- Stop-loss: 63400
+- Take-profit: 56950
 - RSI(14): 74.1 (překoupeno)
 - MACD: bearish divergence
 - Odůvodnění: RSI nad 70 + cena nad SMA200 s klesajícím momentem
 
 ---
 ```
+
+Pokud `decision-maker` u signálu nedodal `stop_loss`/`take_profit` (chyběla data pro výpočet), místo řádků se stop-lossem a take-profitem napiš `- Stop-loss/Take-profit: nedostupné (chybí ATR)`.
 
 Pokud v daném běhu nevznikl žádný signál (žádný symbol nesplnil kritéria), zapiš krátkou poznámku:
 ```markdown
@@ -65,12 +71,15 @@ Formát záznamu:
   "confidence": 0.72,
   "entry_date": "2026-08-10T14:32:00Z",
   "entry_price": 231.50,
+  "stop_loss": 222.80,
+  "take_profit": 248.90,
   "vysledek_5d": null,
   "vysledek_10d": null
 }
 ```
 - `id` = `SYMBOL_ENTRY_DATE_SIGNAL` (entry_date jako přesný ISO timestamp běhu, kvůli jednoznačnosti při více bězích za den).
 - `entry_price` = cena, kterou ti dodal `decision-maker`/`analyst` pro daný symbol v tomto běhu.
+- `stop_loss`/`take_profit` = hodnoty od `decision-maker` (nebo `null`, pokud je nedodal).
 - `vysledek_5d` a `vysledek_10d` nech `null` — vyplňuje je až `performance-tracker` po uplynutí doby.
 - Nový záznam **připoj** do existujícího pole, nikdy nepřepisuj starší záznamy.
 

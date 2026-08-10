@@ -81,6 +81,16 @@ Pokud chybí **technická** data (dominantní pilíř, 50 % váhy), symbol vůbe
 - `celkove_skore <= -0.6` → **SHORT**, confidence = abs(celkove_skore)
 - jinak → symbol se do výstupu nezahrnuje
 
+## Take-profit / stop-loss
+Ke každému signálu, který splní práh, spočítej doporučené úrovně na základě `atr_14` (kontext volatility, dodává `analyst`):
+
+- **Stop-loss**: `entry_price − 1.5 × atr_14` (LONG) / `entry_price + 1.5 × atr_14` (SHORT)
+- **Take-profit**: `entry_price + 3.0 × atr_14` (LONG) / `entry_price − 3.0 × atr_14` (SHORT)
+
+Tj. risk:reward 1:2 (vzdálenost k TP je dvojnásobek vzdálenosti k SL). Pokud `atr_14` chybí **nebo je 0**, `stop_loss`/`take_profit` nepočítej (nech `null`) a v `duvod` uveď, že chybí data pro výpočet — `atr_14 == 0` by dalo degenerovaný výsledek SL = TP = entry_price, což není použitelné doporučení.
+
+**Důležitá výhrada:** tohle je jednoduché volatility-based doporučení, ne přesná predikce — na rozdíl od hlavního skóre (viz backtest dřív v projektu) není samostatně ověřené a nezohledňuje např. blízkou support/resistance úroveň. `executor` ho zapisuje do logu jako informativní součást reportu, nikdy nejde o obchodní příkaz.
+
 ## Výstup
 Pro každý symbol, který splní práh, vrať:
 ```json
@@ -89,6 +99,9 @@ Pro každý symbol, který splní práh, vrať:
   "trh": "akcie",
   "signal": "LONG",
   "confidence": 0.68,
+  "cena": 231.50,
+  "stop_loss": 222.80,
+  "take_profit": 248.90,
   "duvod": "Technicky: RSI 28.4 pod prahem, MACD bullish crossover, uptrend. Fundamentálně: P/E pod historickým průměrem, EPS roste 12 % YoY. Sentiment: VIX 18.3 (klid), mírně pozitivní news."
 }
 ```
