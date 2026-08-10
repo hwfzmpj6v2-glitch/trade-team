@@ -88,14 +88,21 @@ Pokud chybí **technická** data (dominantní pilíř, 50 % váhy), symbol vůbe
 - jinak → symbol se do výstupu nezahrnuje
 
 ## Take-profit / stop-loss
-Ke každému signálu, který splní práh, spočítej doporučené úrovně na základě `atr_14` (kontext volatility, dodává `analyst`):
+Ke každému signálu, který splní práh, spočítej doporučené úrovně:
 
-- **Stop-loss**: `entry_price − 1.5 × atr_14` (LONG) / `entry_price + 1.5 × atr_14` (SHORT)
-- **Take-profit**: `entry_price + 3.0 × atr_14` (LONG) / `entry_price − 3.0 × atr_14` (SHORT)
+1. **Základ (ATR)**: `sl_atr = entry_price − 1.5 × atr_14` (LONG) / `entry_price + 1.5 × atr_14` (SHORT); `take_profit = entry_price + 3.0 × atr_14` (LONG) / `entry_price − 3.0 × atr_14` (SHORT).
+2. **Zpřesnění stop-lossu podle support/resistance** (dodává `analyst` jako `nearest_support`/`nearest_resistance`):
+   - LONG: pokud `nearest_support` existuje a leží mezi `sl_atr` a `entry_price` (tj. je těsnější než čistý ATR stop), použij `stop_loss = nearest_support − 0.1 × atr_14`. Jinak (chybí nebo je mimo tento rozsah) použij `sl_atr`.
+   - SHORT: pokud `nearest_resistance` existuje a leží mezi `entry_price` a `sl_atr`, použij `stop_loss = nearest_resistance + 0.1 × atr_14`. Jinak použij `sl_atr`.
+3. **`take_profit` nikdy neomezuj podle support/resistance** — zůstává čistě na `3.0 × atr_14`.
 
-Tj. risk:reward 1:2 (vzdálenost k TP je dvojnásobek vzdálenosti k SL). Pokud `atr_14` chybí **nebo je 0**, `stop_loss`/`take_profit` nepočítej (nech `null`) a v `duvod` uveď, že chybí data pro výpočet — `atr_14 == 0` by dalo degenerovaný výsledek SL = TP = entry_price, což není použitelné doporučení.
+Risk:reward tedy zůstává typicky kolem 1:2, ale konkrétní risk (vzdálenost k SL) se může zúžit, pokud je poblíž reálná podpora/rezistence.
 
-**Důležitá výhrada:** tohle je jednoduché volatility-based doporučení, ne přesná predikce — na rozdíl od hlavního skóre (viz backtest dřív v projektu) není samostatně ověřené a nezohledňuje např. blízkou support/resistance úroveň. `executor` ho zapisuje do logu jako informativní součást reportu, nikdy nejde o obchodní příkaz.
+Pokud `atr_14` chybí **nebo je 0**, `stop_loss`/`take_profit` nepočítej (nech `null`) a v `duvod` uveď, že chybí data pro výpočet — `atr_14 == 0` by dalo degenerovaný výsledek SL = TP = entry_price, což není použitelné doporučení.
+
+**Proč TP neomezovat podle S/R** — testováno na reálných signálech (BTC, ETH): omezení TP nejbližší rezistencí sice zvýšilo win rate (66,7 %→86,7 % u BTC), ale výrazně snížilo průměrný výnos na obchod (6,28 %→1,13 % u BTC) — zisky se uzavíraly moc brzo. Zúžení jen stop-lossu (bez omezení TP) naopak u BTC zlepšilo win rate (73,3 %) i průměrný výnos (7,76 %) zároveň; u ETH se nezměnilo nic (žádný signál neměl bližší support). **Svíčkové patterny** (bullish/bearish engulfing, hammer, shooting star) byly testovány jako další možné rozšíření technického skóre a **záměrně nebyly zahrnuty** — korelace s budoucím výnosem byla blízko nule nebo špatně orientovaná napříč zlatem, EUR/USD, BTC i ETH.
+
+**Důležitá výhrada:** tohle je pořád jednoduché volatility/S-R-based doporučení, ne přesná predikce, a vzorek testu (16+15 signálů) je malý. `executor` ho zapisuje do logu jako informativní součást reportu, nikdy nejde o obchodní příkaz.
 
 ## Výstup
 Pro každý symbol, který splní práh, vrať:

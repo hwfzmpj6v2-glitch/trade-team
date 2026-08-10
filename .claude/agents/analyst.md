@@ -24,6 +24,11 @@ Chybějící knihovny nainstaluj: `pip install yfinance ccxt requests --break-sy
 - **Klouzavé průměry** — SMA 20, SMA 50, SMA 200
 - **ATR (14)** — kontext volatility; do skóre se nepočítá přímo, ale ulož ho do výstupu, ať `decision-maker` může posoudit, jak silný je pohyb vůči obvyklé volatilitě symbolu
 - **Objem** — `volume_ratio = aktuální objem / SMA20(objem)`, pro potvrzení pohybu objemem
+- **Nejbližší support/resistance** — pro upřesnění stop-lossu u `decision-maker`:
+  - najdi swing high/low (pivotní body) za posledních 60 period: bod je swing high, pokud je jeho `high` nejvyšší v okně ±5 period kolem něj; swing low analogicky s `low`
+  - `nearest_support` = nejvyšší swing low **pod** aktuální cenou (nejbližší podpora zdola)
+  - `nearest_resistance` = nejnižší swing high **nad** aktuální cenou (nejbližší rezistence shora)
+  - pokud žádný takový bod v okně neexistuje, nech `null`
 
 Denní timeframe jako výchozí, pokud není řečeno jinak.
 
@@ -60,7 +65,9 @@ Pro každý symbol vrať strukturovaná data (JSON):
     "macd": {"macd_line": -1.2, "signal_line": -0.8, "histogram": -0.4, "histogram_predchozi": -0.9, "histogram_std_20": 0.6},
     "sma_20": 235.1, "sma_50": 240.3, "sma_200": 220.7,
     "atr_14": 5.8,
-    "volume_ratio": 1.4
+    "volume_ratio": 1.4,
+    "nearest_support": 224.3,
+    "nearest_resistance": 241.0
   },
   "fundamentalni": {
     "pe_ratio": 24.1,
