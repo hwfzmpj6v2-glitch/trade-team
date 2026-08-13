@@ -36,7 +36,7 @@ grep -n '\[' index.html
 4. **Odkazy na sítě** — Instagram, YouTube, TikTok v sekci kontakt.
 5. Zbytek: jméno, město, e-mail, počet klientů, certifikace, roky soutěží.
 
-Závodní výsledky jsou vyplněné reálně: Kahaan Cup 1× absolutní vítězství
+Závodní výsledky jsou vyplněné reálně: Kahan Cup 1× absolutní vítězství
 a 3× první místo, Grand Prix Ostrava 2× druhé a 1× třetí místo. Doplňte
 roky a kategorie — konkrétní údaje působí věrohodněji než souhrn.
 
