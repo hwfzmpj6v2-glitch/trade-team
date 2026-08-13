@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Monogram">
+  <!-- Ikonka v záložce prohlížeče. Písmena v <text> přepište na svoje iniciály
+       a barvu #0f5c4a případně srovnejte s akcentní barvou v css/style.css. -->
+  <rect width="64" height="64" rx="14" fill="#0f5c4a"/>
+  <text x="32" y="43"
+        font-family="system-ui, -apple-system, Segoe UI, Roboto, sans-serif"
+        font-size="30" font-weight="600" fill="#ffffff"
+        text-anchor="middle" letter-spacing="-1">AK</text>
+</svg>
