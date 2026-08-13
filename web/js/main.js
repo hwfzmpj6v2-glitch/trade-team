@@ -106,19 +106,36 @@
 
   /* ---------- e-mail složený až v prohlížeči ---------- */
 
-  document.querySelectorAll('.js-email').forEach(function (el) {
+  function address(el) {
     var user = el.dataset.user;
     var domain = el.dataset.domain;
 
-    // Dokud jsou v HTML zástupné texty, necháme viditelný zástupný text.
-    if (!user || !domain || user.indexOf('[') === 0 || domain.indexOf('[') === 0) {
+    // Dokud jsou v HTML zástupné texty v hranatých závorkách, adresa neexistuje.
+    if (!user || !domain || user.charAt(0) === '[' || domain.charAt(0) === '[') return null;
+
+    return user + '@' + domain;
+  }
+
+  // Odkaz v kontaktech: zobrazí adresu jako text.
+  document.querySelectorAll('.js-email').forEach(function (el) {
+    var mail = address(el);
+
+    if (!mail) {
       el.removeAttribute('href');
       return;
     }
 
-    var address = user + '@' + domain;
-    el.textContent = address;
-    el.href = 'mailto:' + address;
+    el.textContent = mail;
+    el.href = 'mailto:' + mail;
+  });
+
+  // Tlačítko: popisek zůstane, mění se jen cíl. Volitelně předvyplní předmět.
+  document.querySelectorAll('.js-email-btn').forEach(function (el) {
+    var mail = address(el);
+    if (!mail) return;
+
+    var subject = el.dataset.subject;
+    el.href = 'mailto:' + mail + (subject ? '?subject=' + encodeURIComponent(subject) : '');
   });
 
   /* ---------- rok v patičce ---------- */
